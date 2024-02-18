@@ -158,7 +158,7 @@ class Converter extends \PluginParserConverter {
 						if (__PukiWikiParserMarkdownHelper__.textarea && !__PukiWikiParserMarkdownHelper__.instance) {
 							__PukiWikiParserMarkdownHelper__.instance = new EasyMDE({
 								element: __PukiWikiParserMarkdownHelper__.textarea,
-								toolbar: ['bold','italic','strikethrough','heading','|','code', 'quote','unordered-list','ordered-list','|','link','table','horizontal-rule'{$preview},'|','guide', 
+								toolbar: ['bold','italic','strikethrough','heading','|','code', 'quote','unordered-list','ordered-list','|','link','image','table','horizontal-rule'{$preview},'|','guide', 
 								{ 
 									name: "emdet-insertImage",   
 									action: insertImage,           //Javascriptの関数を呼び出す
@@ -194,49 +194,57 @@ class Converter extends \PluginParserConverter {
 
 					// innerTextとファイルURLを格納するための配列を作成
 					var file_list = [];
-
-					// 各要素のinnerTextとファイルURLを取得して配列に追加
-					attach_files.forEach(function(attach) {
-						var fileName = attach.innerText;
-						var fileURL = location.protocol+"//"+location.host+"/"+location.pathname+"/?plugin=ref&page=aiueo&src=" + fileName;
-						file_list.push({ name: fileName, url: fileURL });
-					});
+					if(attach_files.length!=0){
+						// 各要素のinnerTextとファイルURLを取得して配列に追加
+						attach_files.forEach(function(attach) {
+							var fileName = attach.innerText;
+							var fileURL = location.protocol+"//"+location.host+"/"+location.pathname+"/?plugin=ref&page=aiueo&src=" + fileName;
+							file_list.push({ name: fileName, url: fileURL });
+						});
+					}
+					
 
 					// ファイル一覧を表示するポップアップを作成
 					var popupHTML = "<div id='file_picker' style='display:none; position: fixed; height:90vh; overflow:scroll; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ccc; z-index: 9999;'>";
 					popupHTML += "<h3>ファイル一覧</h3><span onclick='close_popup()'>閉じる</span><div id='fileGrid' style='display: flex; flex-wrap: wrap; gap: 10px;'>";
-
-					// ファイル一覧をポップアップに追加
-					file_list.forEach(function(file) {
-						popupHTML += "<div data-file='"+file.name+"' style='flex: 0 0 calc(33.33% - 10px); margin: 5px;'><p>" + file.name + "</p><img src='" + file.url + "' style='max-width: 100%; max-height: 100%;'></div>";
-					});
-
+					if(attach_files.length!=0){
+						// ファイル一覧をポップアップに追加
+						file_list.forEach(function(file) {
+							popupHTML += "<div data-file='"+file.name+"' style='flex: 0 0 calc(33.33% - 10px); margin: 5px;'><p>" + file.name + "</p><img src='" + file.url + "' style='max-width: 100%; max-height: 100%;'></div>";
+						});
+					}
 					popupHTML += "</div></div>";
 
 					// ポップアップをbodyに追加
-					document.querySelector("#attach").innerHTML += popupHTML;
-					var elementsWithDataFile = document.querySelectorAll('[data-file]');
-					elementsWithDataFile.forEach(function(element) {
-						element.addEventListener('click', function() {
-						  // クリックされた要素の data-file 値を取得して console にログ出力
-						  var dataFileValue = element.getAttribute('data-file');
-						  console.log(dataFileValue);
-						  if (dataFileValue !== null && dataFileValue !== "") {
-							var tag = '![]('+location.protocol+'//'+location.hostname+location.pathname+'?plugin=ref&page=aiueo&src='+dataFileValue+')\\n';
-							var cm = _editor.codemirror;
-							cm.replaceSelection(tag);
-							document.querySelector("#file_picker").style.display="none";
-						}
+					if(attach_files.length!=0){
+						document.querySelector("#attach").innerHTML += popupHTML;
+						var elementsWithDataFile = document.querySelectorAll('[data-file]');
+						elementsWithDataFile.forEach(function(element) {
+							element.addEventListener('click', function() {
+							  // クリックされた要素の data-file 値を取得して console にログ出力
+							  var dataFileValue = element.getAttribute('data-file');
+							  console.log(dataFileValue);
+							  if (dataFileValue !== null && dataFileValue !== "") {
+								var tag = '![]('+location.protocol+'//'+location.hostname+location.pathname+'?plugin=ref&page=aiueo&src='+dataFileValue+')\\n';
+								var cm = _editor.codemirror;
+								cm.replaceSelection(tag);
+								document.querySelector("#file_picker").style.display="none";
+							}
+							});
 						});
-					});
+					}
 				}
 				
 
 				
 				function insertImage(editor) {
 					_editor = editor;
-					document.querySelector("#file_picker").style.display="block";
-					
+					var attach_files = document.querySelectorAll("#attach>a");
+					if(attach_files.length!=0){
+						document.querySelector("#file_picker").style.display="block";
+					}else{
+						alert('添付ファイルがありません');
+					}
 				}
 			--></script>
 			EOT;
