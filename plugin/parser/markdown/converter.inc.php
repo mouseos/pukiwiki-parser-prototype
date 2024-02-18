@@ -186,19 +186,27 @@ class Converter extends \PluginParserConverter {
 				function close_popup(){
 					document.querySelector("#file_picker").style.display="none";
 				}
-				
+				function getParam(name, url) {
+					if (!url) url = window.location.href;
+					name = name.replace(/[\[\]]/g, "\\$&");
+					var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+						results = regex.exec(url);
+					if (!results) return null;
+					if (!results[2]) return '';
+					return decodeURIComponent(results[2].replace(/\+/g, " "));
+				}
 				window.onload = function() {
 
 					// #attach>a セレクタに一致する要素を取得
 					var attach_files = document.querySelectorAll("#attach>a");
-
+					let page_name=getParam('page');
 					// innerTextとファイルURLを格納するための配列を作成
 					var file_list = [];
 					if(attach_files.length!=0){
 						// 各要素のinnerTextとファイルURLを取得して配列に追加
 						attach_files.forEach(function(attach) {
 							var fileName = attach.innerText;
-							var fileURL = location.protocol+"//"+location.host+"/"+location.pathname+"/?plugin=ref&page=aiueo&src=" + fileName;
+							var fileURL = location.protocol+"//"+location.host+"/"+location.pathname+"/?plugin=ref&page="+page_name+"&src=" + fileName;
 							file_list.push({ name: fileName, url: fileURL });
 						});
 					}
@@ -225,7 +233,7 @@ class Converter extends \PluginParserConverter {
 							  var dataFileValue = element.getAttribute('data-file');
 							  console.log(dataFileValue);
 							  if (dataFileValue !== null && dataFileValue !== "") {
-								var tag = '![]('+location.protocol+'//'+location.hostname+location.pathname+'?plugin=ref&page=aiueo&src='+dataFileValue+')\\n';
+								var tag = '![]('+location.protocol+'//'+location.hostname+location.pathname+'?plugin=ref&page='+encodeURI(page_name)+'&src='+dataFileValue+')\\n';
 								var cm = _editor.codemirror;
 								cm.replaceSelection(tag);
 								document.querySelector("#file_picker").style.display="none";
