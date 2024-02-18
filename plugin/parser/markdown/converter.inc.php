@@ -158,7 +158,7 @@ class Converter extends \PluginParserConverter {
 						if (__PukiWikiParserMarkdownHelper__.textarea && !__PukiWikiParserMarkdownHelper__.instance) {
 							__PukiWikiParserMarkdownHelper__.instance = new EasyMDE({
 								element: __PukiWikiParserMarkdownHelper__.textarea,
-								toolbar: ['bold','italic','strikethrough','heading','|','code', 'quote','unordered-list','ordered-list','|','link','image','table','horizontal-rule'{$preview},'|','guide', 
+								toolbar: ['bold','italic','strikethrough','heading','|','code', 'quote','unordered-list','ordered-list','|','link','table','horizontal-rule'{$preview},'|','guide', 
 								{ 
 									name: "emdet-insertImage",   
 									action: insertImage,           //Javascriptの関数を呼び出す
